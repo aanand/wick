@@ -18,13 +18,19 @@ module IRCClient
           @user_out_io.puts(line)
         end
 
+        network_in << "CONNECTION_START"
+
         while true
           ready = IO.select([@network_io, @user_in_io])
           ready[0].each do |io|
             if io == @network_io
-              network_in << io.read_nonblock(1_000_000)
+              io.read_nonblock(1_000_000).each_line do |line|
+                network_in << line
+              end
             elsif io == @user_in_io
-              user_in << io.read_nonblock(1_000_000)
+              io.read_nonblock(1_000_000).each_line do |line|
+                user_in << line
+              end
             end
           end
         end
