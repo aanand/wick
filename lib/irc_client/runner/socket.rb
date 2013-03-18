@@ -34,8 +34,10 @@ module IRCClient
             end
           end
         end
-
-        network.close
+      rescue EOFError
+        puts "Either stdin or network connection was closed. Shutting down."
+      ensure
+        @network_io.close
       end
     end
   end
