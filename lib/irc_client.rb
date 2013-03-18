@@ -2,17 +2,19 @@ require 'irc_client/session'
 require 'irc_client/runner/socket'
 require 'stream'
 
+require 'colored'
+
 module IRCClient
   def self.start(options)
     session        = Session.new
     session.runner = Runner::Socket.new(options)
 
-    session.network_in.map { |line|
-      "Got line from network: #{line.inspect}"
+    session.network_in.map { |data|
+      data.strip.each_line.map { |line| "< #{line.strip}".black.bold }
     }.pipe(session.user_out)
 
-    session.network_out.map { |line|
-      "Sending line over network: #{line.inspect}"
+    session.network_out.map { |data|
+      data.strip.each_line.map { |line| "> #{line.strip}".black.bold }
     }.pipe(session.user_out)
 
     session.user_in.pipe(session.network_out)
