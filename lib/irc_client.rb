@@ -20,7 +20,7 @@ module IRCClient
     end
 
     connection_start = session.network_in.filter { |line| line == "CONNECTION_START" }
-    nick_and_user_msgs = connection_start.map { |line| "NICK bot\nUSER bot () * Bot" }
+    nick_and_user_msgs = connection_start.map { |line| "NICK frippery\nUSER frippery () * FRiPpery" }
     nick_and_user_msgs.pipe(session.network_out)
 
     session.start
