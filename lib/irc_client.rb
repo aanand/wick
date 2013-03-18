@@ -6,8 +6,7 @@ require 'colored'
 
 module IRCClient
   def self.start(options)
-    session        = Session.new
-    session.runner = Runner::Socket.new(options)
+    session = Session.new
 
     session.network_in.map { |data|
       data.strip.each_line.map { |line| "< #{line.strip}".black.bold }
@@ -23,6 +22,7 @@ module IRCClient
     nick_and_user_msgs = connection_start.map { |line| "NICK frippery\nUSER frippery () * FRiPpery" }
     nick_and_user_msgs.pipe(session.network_out)
 
-    session.start
+    runner = Runner::Socket.new(options)
+    runner.start(session)
   end
 end
