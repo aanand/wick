@@ -13,6 +13,10 @@ module IRCClient
     nick_and_user_msgs = connection_start.map { |line| "NICK frippery\nUSER frippery () * FRiPpery" }
     nick_and_user_msgs.pipe(session.network_out)
 
+    ping = session.network_in.filter { |line| line =~ /^PING / }
+    pong = ping.map { |line| "PONG " + line[/:.*/] }
+    pong.pipe(session.network_out)
+
     output = Output::Basic.new
     output.start(session)
 
