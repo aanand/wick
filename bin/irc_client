@@ -1,0 +1,4 @@
+#!/usr/bin/env ruby
+
+require 'irc_client'
+IRCClient.start(host: ARGV[0], port: ARGV[1])
