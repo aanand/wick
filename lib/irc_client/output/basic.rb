@@ -1,3 +1,5 @@
+require 'colored'
+
 module IRCClient
   module Output
     class Basic

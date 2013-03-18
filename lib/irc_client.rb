@@ -3,8 +3,6 @@ require 'irc_client/output/basic'
 require 'irc_client/runner/socket'
 require 'stream'
 
-require 'colored'
-
 module IRCClient
   def self.start(options)
     session = Session.new
