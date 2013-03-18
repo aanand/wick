@@ -55,8 +55,8 @@ module IRCClient
         end
 
         while true
-          reads, writes, errors = IO.select([@network_io, @user_in_io])
-          reads.each do |io|
+          ready = IO.select([@network_io, @user_in_io])
+          ready[0].each do |io|
             if io == @network_io
               @network_in << io.read_nonblock(1_000_000)
             elsif io == @user_in_io
