@@ -4,7 +4,7 @@ require 'irc_client/runner/socket'
 require 'stream'
 
 module IRCClient
-  def self.start(options)
+  def self.init_session
     session = Session.new
 
     session.user_in.pipe(session.network_out)
@@ -17,10 +17,6 @@ module IRCClient
     pong = ping.map { |line| "PONG " + line[/:.*/] }
     pong.pipe(session.network_out)
 
-    output = Output::Basic.new
-    output.start(session)
-
-    runner = Runner::Socket.new(options)
-    runner.start(session)
+    session
   end
 end

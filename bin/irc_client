@@ -1,4 +1,15 @@
 #!/usr/bin/env ruby
 
 require 'irc_client'
-IRCClient.start(host: ARGV[0], port: ARGV[1])
+
+host = ARGV[0] || 'localhost'
+port = ARGV[1] || '6667'
+
+output  = IRCClient::Output::Basic.new
+runner  = IRCClient::Runner::Socket.new(host, port, $stdin, $stdout)
+session = IRCClient.init_session
+
+output.attach(session)
+runner.attach(session)
+
+runner.listen!

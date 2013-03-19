@@ -3,13 +3,17 @@ require 'socket'
 module IRCClient
   module Runner
     class Socket
-      def initialize(options)
-        @network_io  = TCPSocket.new(options.fetch(:host), options.fetch(:port))
-        @user_in_io  = options.fetch(:user_in_io)  { $stdin  }
-        @user_out_io = options.fetch(:user_out_io) { $stdout }
+      attr_reader :session
+
+      def initialize(host, port, user_in_io, user_out_io)
+        @network_io  = TCPSocket.new(host, port)
+        @user_in_io  = user_in_io
+        @user_out_io = user_out_io
       end
 
-      def start(session)
+      def attach(session)
+        @session = session
+
         session.network_out.each do |line|
           @network_io.puts(line)
         end
@@ -17,7 +21,9 @@ module IRCClient
         session.user_out.each do |line|
           @user_out_io.puts(line)
         end
+      end
 
+      def listen!
         session.network_in << "CONNECTION_START"
 
         while true
