@@ -1,6 +1,8 @@
 #!/usr/bin/env ruby
 
 require 'irc_client'
+require 'irc_client/output/basic'
+require 'irc_client/runner/socket'
 
 host = ARGV[0] || 'localhost'
 port = ARGV[1] || '6667'

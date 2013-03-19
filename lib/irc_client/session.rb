@@ -1,3 +1,5 @@
+require 'stream'
+
 module IRCClient
   class Session
     attr_reader :network_in, :network_out,

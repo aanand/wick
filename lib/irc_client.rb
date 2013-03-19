@@ -1,7 +1,4 @@
 require 'irc_client/session'
-require 'irc_client/output/basic'
-require 'irc_client/runner/socket'
-require 'stream'
 
 module IRCClient
   def self.init_session
