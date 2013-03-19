@@ -1,4 +1,5 @@
 require 'socket'
+require 'stream'
 
 module IRCClient
   module Runner
@@ -27,6 +28,8 @@ module IRCClient
         session.network_in << "CONNECTION_START"
 
         while true
+          Stream.tick!
+
           ready = IO.select([@network_io, @user_in_io])
           ready[0].each do |io|
             if io == @network_io
