@@ -1,4 +1,5 @@
 require 'irc_client/session'
+require 'irc_client/message'
 
 module IRCClient
   def self.init_session
@@ -6,12 +7,14 @@ module IRCClient
 
     session.user_in.pipe(session.network_out)
 
-    connection_start = session.network_in.filter { |line| line == "CONNECTION_START" }
-    nick_and_user_msgs = connection_start.map { |line| "NICK frippery\nUSER frippery () * FRiPpery" }
+    messages = session.network_in.map { |line| Message.parse(line) }
+
+    connection_start = messages.filter { |msg| msg.command == "CONNECTION_START" }
+    nick_and_user_msgs = connection_start.map { |_| "NICK frippery\nUSER frippery () * FRiPpery" }
     nick_and_user_msgs.pipe(session.network_out)
 
-    ping = session.network_in.filter { |line| line =~ /^PING / }
-    pong = ping.map { |line| "PONG " + line[/:.*/] }
+    ping = messages.filter { |msg| msg.command == "PING" }
+    pong = ping.map { |msg| "PONG " + msg.params.join(" ") }
     pong.pipe(session.network_out)
 
     session
