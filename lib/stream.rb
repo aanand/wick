@@ -60,7 +60,8 @@ class Stream
     end
 
     def tick!
-      while callback = @tick_callbacks.pop
+      return unless @tick_callbacks
+      while callback = @tick_callbacks.shift
         callback.call()
       end
     end
