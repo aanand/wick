@@ -1,22 +1,13 @@
-require 'irc_client/session'
-require 'irc_client/message'
+require 'stream'
 
 module IRCClient
-  def self.init_session
-    session = Session.new
+  def self.start!(client, output, runner)
+    network_in  = Stream.new
+    user_in     = Stream.new
 
-    session.user_in.pipe(session.network_out)
+    network_out = client.transform(network_in, user_in)
+    user_out    = output.transform(network_in, network_out)
 
-    messages = session.network_in.map { |line| Message.parse(line) }
-
-    connection_start = messages.filter { |msg| msg.command == "CONNECTION_START" }
-    nick_and_user_msgs = connection_start.flat_map { |_| Stream.from_array(["NICK frippery", "USER frippery () * FRiPpery"]) }
-    nick_and_user_msgs.pipe(session.network_out)
-
-    ping = messages.filter { |msg| msg.command == "PING" }
-    pong = ping.map { |msg| "PONG " + msg.params.join(" ") }
-    pong.pipe(session.network_out)
-
-    session
+    runner.listen!(network_in, network_out, user_in, user_out)
   end
 end

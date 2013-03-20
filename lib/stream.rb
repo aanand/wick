@@ -24,7 +24,7 @@ class Stream
   def flat_map(&transformer)
     s = Stream.new
     self.each do |msg|
-      transformer.call(msg).pipe(s)
+      transformer.call(msg).pipe!(s)
     end
     s
   end
@@ -37,9 +37,16 @@ class Stream
     s
   end
 
-  def pipe(stream)
+  def merge(other)
+    s = Stream.new
+    self.pipe!(s)
+    other.pipe!(s)
+    s
+  end
+
+  def pipe!(other)
     self.each do |msg|
-      stream << msg
+      other << msg
     end
   end
 
