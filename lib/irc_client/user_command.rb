@@ -37,6 +37,9 @@ module IRCClient
         end
       when :me
         current_channel && "PRIVMSG ##{current_channel} :\x01ACTION #{argument}\x01"
+      when :msg
+        user, msg = argument.split(/\s+/, 2)
+        "PRIVMSG #{user} :#{msg}"
       when :join
         channel = argument
         channel = "##{channel}" unless channel =~ /^#/
