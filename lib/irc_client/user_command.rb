@@ -47,6 +47,8 @@ module IRCClient
         "PART #{channel}"
       when :quit
         "QUIT :#{argument}"
+      when :raw
+        argument
       else
         nil
       end
