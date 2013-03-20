@@ -37,10 +37,30 @@ class Stream
     s
   end
 
+  def compact
+    filter { |msg| not msg.nil? }
+  end
+
   def merge(other)
     s = Stream.new
     self.pipe!(s)
     other.pipe!(s)
+    s
+  end
+
+  def combine_with_latest(other, &combiner)
+    latest_other = nil
+
+    other.each do |msg|
+      latest_other = msg
+    end
+
+    s = Stream.new
+
+    self.each do |msg|
+      s << combiner.call(msg, latest_other)
+    end
+
     s
   end
 
