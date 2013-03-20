@@ -12,8 +12,17 @@ module IRCClient
     user_commands = user_in.map    { |line| UserCommand.parse(line) }
 
     network_out = client.transform(messages, user_commands)
-    user_out    = output.transform(network_in, network_out)
+    debug       = self.debug_network(network_in, network_out)
+    user_out    = output.transform(messages, user_commands, debug)
 
     runner.listen!(network_in, network_out, user_in, user_out)
+  end
+
+  def self.debug_network(network_in, network_out)
+    network_in.flat_map { |data|
+      Stream.from_array(data.strip.each_line.map { |line| "< #{line.strip}" })
+    }.merge(network_out.flat_map { |data|
+      Stream.from_array(data.strip.each_line.map { |line| "> #{line.strip}" })
+    })
   end
 end
