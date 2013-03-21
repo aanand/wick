@@ -1,10 +1,10 @@
 module IRCClient
   module UI
     class Nice
-      State = Struct.new(:joined_channels, :current_channel, :channel_messages)
+      State = Struct.new(:joined_channels, :current_channel)
 
       def transform(user_in, server_events)
-        initial_state = State.new([], nil, {})
+        initial_state = State.new([], nil)
 
         server_events.log!("server event")
 
@@ -12,35 +12,14 @@ module IRCClient
           if event.command == "JOIN"
             channel = event.params.first
 
-            State.new(
-              last_state.joined_channels | [channel],
-              channel,
-              last_state.channel_messages.merge(channel => [])
-            )
+            State.new(last_state.joined_channels | [channel], channel)
           elsif event.command == "PART"
             channel = event.params.first
 
             new_channel_list    = last_state.joined_channels - [channel]
             new_current_channel = new_channel_list.first
 
-            State.new(
-              new_channel_list,
-              new_current_channel,
-              last_state.channel_messages
-            )
-          elsif event.command == "PRIVMSG"
-            channel = event.params.first
-            new_channel_messages_map = last_state.channel_messages.dup
-
-            if new_channel_messages_map.has_key?(channel)
-              new_channel_messages_map[channel] << event.params[1]
-            end
-
-            State.new(
-              last_state.joined_channels,
-              last_state.current_channel,
-              new_channel_messages_map
-            )
+            State.new(new_channel_list, new_current_channel)
           else
             last_state
           end
@@ -49,6 +28,19 @@ module IRCClient
         state.log!("state")
 
         user_commands = user_in.sampling(state) { |line, s| UserCommand.parse(line, s.current_channel) }.log!("user command")
+
+        outgoing_messages = user_commands.filter { |cmd| cmd.action.nil? }
+                                         .map { |cmd| [cmd.channel, "me", cmd.argument] }
+
+        incoming_messages = server_events.filter { |event| event.command == "PRIVMSG" }
+                                         .map { |event| [event.params[0], event.user, event.params[1]] }
+
+        message_log = outgoing_messages.merge(incoming_messages).scan(Hash.new([])) { |map, triple|
+          channel, user, message = *triple
+          map.merge(channel => map[channel] + ["<#{user}> #{message}"])
+        }
+
+        message_log.log!("message log")
 
         user_out = Stream.from_array([])
 

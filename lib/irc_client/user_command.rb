@@ -18,6 +18,8 @@ module IRCClient
     attr_reader :action, :argument, :channel
 
     def initialize(line, channel)
+      line = line.chomp
+
       @channel = channel
 
       if match = line.match(REGEX)
