@@ -48,6 +48,25 @@ class Stream
     s
   end
 
+  def combine(other, &combiner)
+    latest_self  = nil
+    latest_other = nil
+
+    s = Stream.new
+
+    self.each do |msg|
+      latest_self = msg
+      s << combiner.call(msg, latest_other)
+    end
+
+    other.each do |msg|
+      latest_other = msg
+      s << combiner.call(latest_self, msg)
+    end
+
+    s
+  end
+
   def sampling(other, &combiner)
     latest_other = nil
 

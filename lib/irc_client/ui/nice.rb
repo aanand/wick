@@ -42,7 +42,26 @@ module IRCClient
 
         message_log.log!("message log")
 
-        user_out = Stream.from_array([])
+        user_out = message_log.combine(state) { |current_log, current_state|
+          if current_log and current_state
+            tabs = current_state.joined_channels.map { |c|
+              if c == current_state.current_channel
+                c.green
+              else
+                c
+              end
+            }
+
+            channel_log = current_log[current_state.current_channel].last(20)
+
+            puts "tabs = #{tabs.inspect}"
+            puts "channel_log = #{channel_log.inspect}"
+
+            clear_screen + move_to(1,1) + tabs.join(" ") + "\n" + channel_log.join("\n")
+          else
+            ""
+          end
+        }
 
         [user_out, user_commands]
       end
