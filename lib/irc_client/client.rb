@@ -17,12 +17,12 @@ module IRCClient
         case cmd.action
         when nil
           if cmd.channel
-            "PRIVMSG ##{cmd.channel} :#{cmd.argument}"
+            "PRIVMSG #{cmd.channel} :#{cmd.argument}"
           else
             cmd.argument
           end
         when :me
-          cmd.channel && "PRIVMSG ##{cmd.channel} :\x01ACTION #{cmd.argument}\x01"
+          cmd.channel && "PRIVMSG #{cmd.channel} :\x01ACTION #{cmd.argument}\x01"
         when :msg
           user, msg = cmd.argument.split(/\s+/, 2)
           "PRIVMSG #{user} :#{msg}"
