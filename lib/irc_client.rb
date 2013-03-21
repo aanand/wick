@@ -1,7 +1,7 @@
 require 'stream'
 
 module IRCClient
-  def self.start!(client, output, runner)
+  def self.start!(client, ui, runner)
     network_in  = Stream.new
     user_in     = Stream.new
 
@@ -9,7 +9,7 @@ module IRCClient
     user_commands_bus = Stream::Bus.new
 
     network_out, server_events = client.transform(network_in, user_commands_bus)
-    user_out,    user_commands = output.transform(user_in,    server_events_bus)
+    user_out,    user_commands = ui.transform(user_in, server_events_bus)
 
     server_events_bus.consume!(server_events)
     user_commands_bus.consume!(user_commands)
