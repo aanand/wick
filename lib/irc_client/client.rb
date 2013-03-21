@@ -1,11 +1,11 @@
 require 'stream'
 
-require 'irc_client/message'
+require 'irc_client/server_event'
 
 module IRCClient
   class Client
     def transform(network_in, user_commands)
-      server_events = network_in.map { |line| Message.parse(line) }
+      server_events = network_in.map { |line| ServerEvent.parse(line) }
 
       connection_start = server_events.filter { |msg| msg.command == "CONNECTION_START" }
       nick_and_user_msgs = connection_start.flat_map { |_| Stream.from_array(["NICK frippery", "USER frippery () * FRiPpery"]) }
