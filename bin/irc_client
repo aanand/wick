@@ -3,13 +3,14 @@
 require 'irc_client'
 require 'irc_client/client'
 require 'irc_client/ui/raw'
+require 'irc_client/ui/nice'
 require 'irc_client/runner/socket'
 
 host = ARGV[0] || 'localhost'
 port = ARGV[1] || '6667'
 
 client  = IRCClient::Client.new
-ui      = IRCClient::UI::Raw.new
+ui      = IRCClient::UI::Nice.new
 runner  = IRCClient::Runner::Socket.new(host, port, $stdin, $stdout)
 
 IRCClient.start!(client, ui, runner)

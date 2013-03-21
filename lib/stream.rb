@@ -48,7 +48,7 @@ class Stream
     s
   end
 
-  def combine_with_latest(other, &combiner)
+  def sampling(other, &combiner)
     latest_other = nil
 
     other.each do |msg|
@@ -62,6 +62,23 @@ class Stream
     end
 
     s
+  end
+
+  def scan(initial, &scanner)
+    s = Stream.from_array([initial])
+    last = initial
+    self.each do |msg|
+      last = scanner.call(last, msg)
+      s << last
+    end
+    s
+  end
+
+  def log!(prefix)
+    self.each do |msg|
+      $stderr.puts("[#{prefix}] " + msg.inspect)
+    end
+    self
   end
 
   def pipe!(other)

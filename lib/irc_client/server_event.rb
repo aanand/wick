@@ -24,6 +24,8 @@ module IRCClient
     end
 
     def initialize(line)
+      line = line.sub(/[\r\n]+$/, '')
+
       @line = line
       @params = []
 
