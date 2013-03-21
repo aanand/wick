@@ -7,11 +7,12 @@ module IRCClient
         initial_state = State.new([], nil)
 
         state = server_events.scan(initial_state) { |last_state, event|
-          channel = event.params.first
-
           if event.command == "JOIN"
+            channel = event.params.first
             State.new(last_state.joined_channels | [channel], channel)
           elsif event.command == "PART"
+            channel = event.params.first
+
             new_channel_list    = last_state.joined_channels - [channel]
             new_current_channel = new_channel_list.first
 
