@@ -54,9 +54,6 @@ module IRCClient
 
             channel_log = current_log[current_state.current_channel].last(20)
 
-            puts "tabs = #{tabs.inspect}"
-            puts "channel_log = #{channel_log.inspect}"
-
             clear_screen + move_to(1,1) + tabs.join(" ") + "\n" + channel_log.join("\n")
           else
             ""
