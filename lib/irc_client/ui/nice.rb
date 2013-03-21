@@ -1,9 +1,7 @@
-require 'record'
-
 module IRCClient
   module UI
     class Nice
-      State = Record[:joined_channels, :current_channel]
+      State = Struct.new(:joined_channels, :current_channel)
 
       def transform(user_in, server_events)
         initial_state = State.new([], nil)
@@ -12,14 +10,12 @@ module IRCClient
           channel = event.params.first
 
           if event.command == "JOIN"
-            last_state.joined_channels(last_state.joined_channels | [channel])
-                      .current_channel(channel)
+            State.new(last_state.joined_channels | [channel], channel)
           elsif event.command == "PART"
             new_channel_list    = last_state.joined_channels - [channel]
             new_current_channel = new_channel_list.first
 
-            last_state.joined_channels(new_channel_list)
-                      .current_channel(new_current_channel)
+            State.new(new_channel_list, new_current_channel)
           else
             last_state
           end
