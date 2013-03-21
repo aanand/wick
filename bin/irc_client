@@ -2,14 +2,14 @@
 
 require 'irc_client'
 require 'irc_client/client'
-require 'irc_client/output/basic'
+require 'irc_client/output/raw'
 require 'irc_client/runner/socket'
 
 host = ARGV[0] || 'localhost'
 port = ARGV[1] || '6667'
 
 client  = IRCClient::Client.new
-output  = IRCClient::Output::Basic.new
+output  = IRCClient::Output::Raw.new
 runner  = IRCClient::Runner::Socket.new(host, port, $stdin, $stdout)
 
 IRCClient.start!(client, output, runner)

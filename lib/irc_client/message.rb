@@ -24,6 +24,7 @@ module IRCClient
     end
 
     def initialize(line)
+      @line = line
       @params = []
 
       if line =~ MESSAGE
@@ -52,6 +53,10 @@ module IRCClient
         @params.compact!
         @params.flatten!
       end
+    end
+
+    def to_s
+      @line
     end
   end
 end

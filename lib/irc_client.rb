@@ -1,19 +1,18 @@
 require 'stream'
 
-require 'irc_client/message'
-require 'irc_client/user_command'
-
 module IRCClient
   def self.start!(client, output, runner)
     network_in  = Stream.new
     user_in     = Stream.new
 
-    messages      = network_in.map { |line| Message.parse(line)     }
-    user_commands = user_in.map    { |line| UserCommand.parse(line) }
+    server_events_bus = Stream::Bus.new
+    user_commands_bus = Stream::Bus.new
 
-    network_out = client.transform(messages, user_commands)
-    debug       = self.debug_network(network_in, network_out)
-    user_out    = output.transform(messages, user_commands, debug)
+    network_out, server_events = client.transform(network_in, user_commands_bus)
+    user_out,    user_commands = output.transform(user_in,    server_events_bus)
+
+    server_events_bus.consume!(server_events)
+    user_commands_bus.consume!(user_commands)
 
     runner.listen!(network_in, network_out, user_in, user_out)
   end

@@ -70,6 +70,12 @@ class Stream
     end
   end
 
+  class Bus < Stream
+    def consume!(stream)
+      stream.pipe!(self)
+    end
+  end
+
   class << self
     def from_array(array)
       s = Stream.new
