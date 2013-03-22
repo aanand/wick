@@ -1,5 +1,5 @@
 module IRCClient
-  class UserCommand
+  class UserCommand < Struct.new(:action, :argument, :channel)
     REGEX = /
       ^
       \/     # leading slash
@@ -11,23 +11,13 @@ module IRCClient
       $
     /x
 
-    def self.parse(line, channel)
-      new(line, channel)
-    end
-
-    attr_reader :action, :argument, :channel
-
-    def initialize(line, channel)
+    def self.parse(line)
       line = line.chomp
 
-      @channel = channel
-
       if match = line.match(REGEX)
-        @action   = match[1].downcase.to_sym
-        @argument = match[3]
+        new(match[1].downcase.to_sym, match[3], nil)
       else
-        @action   = nil
-        @argument = line
+        new(nil, line, nil)
       end
     end
   end
