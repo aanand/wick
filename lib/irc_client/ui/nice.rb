@@ -15,8 +15,11 @@ module IRCClient
         manual_changes = user_commands.filter { |cmd| cmd.action == :next or cmd.action == :prev }
                                       .map { |cmd|
                                         proc { |s|
-                                          adjust = {next: 1, prev: -1}.fetch(cmd.action)
-                                          State.new(s.joined_channels, (s.channel_index+adjust) % s.joined_channels.length)
+                                          if cmd.action == :next
+                                            State.new(s.joined_channels, (s.channel_index+1) % s.joined_channels.length)
+                                          elsif cmd.action == :prev
+                                            State.new(s.joined_channels, (s.channel_index-1) % s.joined_channels.length)
+                                          end
                                         }
                                       }
 
