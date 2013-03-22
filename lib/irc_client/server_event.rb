@@ -56,9 +56,5 @@ module IRCClient
         @params.flatten!
       end
     end
-
-    def to_s
-      @line
-    end
   end
 end

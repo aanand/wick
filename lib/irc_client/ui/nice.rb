@@ -10,8 +10,6 @@ module IRCClient
       def transform(user_in, server_events)
         initial_state = State.new([], nil)
 
-        server_events.log!("server event")
-
         user_commands = user_in.map { |line| UserCommand.parse(line) }.log!("user_commands")
 
         manual_changes = user_commands.filter { |cmd| cmd.action == :next or cmd.action == :prev }

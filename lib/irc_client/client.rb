@@ -45,6 +45,9 @@ module IRCClient
 
       network_out = outgoing.merge(nick_and_user_msgs).merge(pong)
 
+      server_events.log!("server_events")
+      network_out.log!("network_out")
+
       [network_out, server_events]
     end
   end
