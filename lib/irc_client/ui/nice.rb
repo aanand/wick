@@ -23,7 +23,7 @@ module IRCClient
         }.log!("user_commands_with_channel")
 
         outgoing_messages = user_commands_with_channel.filter { |cmd| cmd.action.nil? }
-                                         .map { |cmd| [cmd.channel, "me", cmd.argument] }
+                                         .map { |cmd| [cmd.channel, @username, cmd.argument] }
 
         incoming_messages = server_events.filter { |event| event.command == "PRIVMSG" }
                                          .map { |event| [event.params[0], event.user, event.params[1]] }

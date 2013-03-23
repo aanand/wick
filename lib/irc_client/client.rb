@@ -13,7 +13,7 @@ module IRCClient
       server_events = network_in.map { |line| ServerEvent.parse(line) }
 
       connection_start = server_events.filter { |msg| msg.command == "CONNECTION_START" }
-      nick_and_user_msgs = connection_start.flat_map { |_| Stream.from_array(["NICK frippery", "USER #{@username} () * FRiPpery"]) }
+      nick_and_user_msgs = connection_start.flat_map { |_| Stream.from_array(["NICK #{@username}", "USER #{@username} () * FRiPpery"]) }
 
       ping = server_events.filter { |msg| msg.command == "PING" }
       pong = ping.map { |msg| "PONG " + msg.params.join(" ") }
