@@ -1,9 +1,9 @@
 module IRCClient
   module UI
     class Nice
-      class State < Struct.new(:joined_channels, :channel_index)
-        def channel_name
-          channel_index && joined_channels[channel_index]
+      class ChannelState < Struct.new(:joined_channels, :current_index)
+        def current_channel_name
+          current_index && joined_channels[current_index]
         end
       end
 
@@ -19,7 +19,7 @@ module IRCClient
         channel_state.log!("channel_state")
 
         user_commands_with_channel = user_commands.sampling(channel_state) { |cmd, cs|
-          UserCommand.new(cmd.action, cmd.argument, cs.channel_name)
+          UserCommand.new(cmd.action, cmd.argument, cs.current_channel_name)
         }.log!("user_commands_with_channel")
 
         outgoing_messages = user_commands_with_channel.filter { |cmd| cmd.action.nil? }
@@ -38,14 +38,14 @@ module IRCClient
         user_out = message_log.combine(channel_state) { |current_log, cs|
           if current_log and cs
             tabs = cs.joined_channels.map { |c|
-              if c == cs.channel_name
+              if c == cs.current_channel_name
                 c.green
               else
                 c
               end
             }
 
-            channel_log = current_log[cs.channel_name].last(20)
+            channel_log = current_log[cs.current_channel_name].last(20)
 
             clear_screen + move_to(1,1) + tabs.join(" ") + "\n" + channel_log.join("\n")
           else
@@ -63,7 +63,7 @@ module IRCClient
         manual_changes    = get_manual_state_changes(user_commands)
         automatic_changes = get_automatic_state_changes(server_events)
 
-        initial_state = State.new([], nil)
+        initial_state = ChannelState.new([], nil)
 
         manual_changes.merge(automatic_changes)
                       .scan(initial_state) { |cs, change| change.call(cs) }
@@ -74,9 +74,9 @@ module IRCClient
                      .map { |cmd|
                        proc { |cs|
                          if cmd.action == :next
-                           State.new(cs.joined_channels, (cs.channel_index+1) % cs.joined_channels.length)
+                           ChannelState.new(cs.joined_channels, (cs.current_index+1) % cs.joined_channels.length)
                          elsif cmd.action == :prev
-                           State.new(cs.joined_channels, (cs.channel_index-1) % cs.joined_channels.length)
+                           ChannelState.new(cs.joined_channels, (cs.current_index-1) % cs.joined_channels.length)
                          end
                        }
                      }
@@ -90,14 +90,14 @@ module IRCClient
                          if event.command == "JOIN"
                            channel = event.params.first
                            new_channel_list = cs.joined_channels | [channel]
-                           State.new(new_channel_list, new_channel_list.index(channel))
+                           ChannelState.new(new_channel_list, new_channel_list.index(channel))
                          elsif event.command == "PART"
                            channel = event.params.first
 
                            new_channel_list  = cs.joined_channels - [channel]
-                           new_channel_index = [cs.channel_index, new_channel_list.length-1].min
+                           new_channel_index = [cs.current_index, new_channel_list.length-1].min
 
-                           State.new(new_channel_list, new_channel_index)
+                           ChannelState.new(new_channel_list, new_channel_index)
                          end
                        }
                      }
