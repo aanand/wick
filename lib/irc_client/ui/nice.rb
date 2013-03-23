@@ -17,35 +17,8 @@ module IRCClient
 
         user_commands = user_in.map { |line| UserCommand.parse(line) }.log!("user_commands")
 
-        manual_changes = user_commands.filter { |cmd| cmd.action == :next or cmd.action == :prev }
-                                      .map { |cmd|
-                                        proc { |s|
-                                          if cmd.action == :next
-                                            State.new(s.joined_channels, (s.channel_index+1) % s.joined_channels.length)
-                                          elsif cmd.action == :prev
-                                            State.new(s.joined_channels, (s.channel_index-1) % s.joined_channels.length)
-                                          end
-                                        }
-                                      }
-
-        automatic_changes = server_events.filter { |event| event.user == @username }
-                                         .filter { |event| event.command == "JOIN" or event.command == "PART" }
-                                         .map { |event|
-                                          proc { |s|
-                                            if event.command == "JOIN"
-                                              channel = event.params.first
-                                              new_channel_list = s.joined_channels | [channel]
-                                              State.new(new_channel_list, new_channel_list.index(channel))
-                                            elsif event.command == "PART"
-                                              channel = event.params.first
-
-                                              new_channel_list  = s.joined_channels - [channel]
-                                              new_channel_index = [s.channel_index, new_channel_list.length-1].min
-
-                                              State.new(new_channel_list, new_channel_index)
-                                            end
-                                          }
-                                         }
+        manual_changes    = get_manual_state_changes(user_commands)
+        automatic_changes = get_automatic_state_changes(server_events)
 
         state = manual_changes.merge(automatic_changes)
                               .scan(initial_state) { |s, change| change.call(s) }
@@ -91,6 +64,40 @@ module IRCClient
         # user_out = Stream.from_array([])
 
         [user_out, user_commands_with_channel]
+      end
+
+      def get_manual_state_changes(user_commands)
+        user_commands.filter { |cmd| cmd.action == :next or cmd.action == :prev }
+                     .map { |cmd|
+                       proc { |s|
+                         if cmd.action == :next
+                           State.new(s.joined_channels, (s.channel_index+1) % s.joined_channels.length)
+                         elsif cmd.action == :prev
+                           State.new(s.joined_channels, (s.channel_index-1) % s.joined_channels.length)
+                         end
+                       }
+                     }
+      end
+
+      def get_automatic_state_changes(server_events)
+        server_events.filter { |event| event.user == @username }
+                     .filter { |event| event.command == "JOIN" or event.command == "PART" }
+                     .map { |event|
+                       proc { |s|
+                         if event.command == "JOIN"
+                           channel = event.params.first
+                           new_channel_list = s.joined_channels | [channel]
+                           State.new(new_channel_list, new_channel_list.index(channel))
+                         elsif event.command == "PART"
+                           channel = event.params.first
+
+                           new_channel_list  = s.joined_channels - [channel]
+                           new_channel_index = [s.channel_index, new_channel_list.length-1].min
+
+                           State.new(new_channel_list, new_channel_index)
+                         end
+                       }
+                     }
       end
 
       def clear_screen
