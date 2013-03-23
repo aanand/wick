@@ -1,18 +1,21 @@
 #!/usr/bin/env ruby
 
+require 'slop'
+
 require 'irc_client'
 require 'irc_client/client'
 require 'irc_client/ui/raw'
 require 'irc_client/ui/nice'
 require 'irc_client/runner/socket'
 
-host = ARGV[0] || 'localhost'
-port = ARGV[1] || '6667'
+opts = Slop.parse(help: true) do
+  on 'host=', 'Hostname of server to connect to', default: 'localhost'
+  on 'port=', 'Port to connect to',               default: '6667'
+  on 'nick=', 'Nick (and username) to use',       default: 'frippery'
+end
 
-username = ARGV[2] || 'frippery'
-
-client  = IRCClient::Client.new(username)
-ui      = IRCClient::UI::Nice.new(username)
-runner  = IRCClient::Runner::Socket.new(host, port, $stdin, $stdout)
+client  = IRCClient::Client.new(opts[:nick])
+ui      = IRCClient::UI::Nice.new(opts[:nick])
+runner  = IRCClient::Runner::Socket.new(opts[:host], opts[:port], $stdin, $stdout)
 
 IRCClient.start!(client, ui, runner)
