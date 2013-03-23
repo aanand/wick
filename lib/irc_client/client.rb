@@ -6,6 +6,7 @@ module IRCClient
   class Client
     def initialize(username)
       @username = username
+      freeze
     end
 
     def transform(network_in, user_commands)

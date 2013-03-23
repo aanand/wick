@@ -20,5 +20,10 @@ module IRCClient
         new(nil, line, nil)
       end
     end
+
+    def initialize(*args)
+      super(*args)
+      freeze
+    end
   end
 end

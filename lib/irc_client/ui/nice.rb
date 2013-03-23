@@ -9,6 +9,7 @@ module IRCClient
 
       def initialize(username)
         @username = username
+        freeze
       end
 
       def transform(user_in, server_events)

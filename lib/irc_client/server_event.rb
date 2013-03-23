@@ -55,6 +55,8 @@ module IRCClient
         @params.compact!
         @params.flatten!
       end
+
+      freeze
     end
   end
 end
