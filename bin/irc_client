@@ -9,8 +9,10 @@ require 'irc_client/runner/socket'
 host = ARGV[0] || 'localhost'
 port = ARGV[1] || '6667'
 
-client  = IRCClient::Client.new
-ui      = IRCClient::UI::Nice.new
+username = ARGV[2] || 'frippery'
+
+client  = IRCClient::Client.new(username)
+ui      = IRCClient::UI::Nice.new(username)
 runner  = IRCClient::Runner::Socket.new(host, port, $stdin, $stdout)
 
 IRCClient.start!(client, ui, runner)

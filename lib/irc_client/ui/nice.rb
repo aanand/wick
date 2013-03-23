@@ -7,6 +7,10 @@ module IRCClient
         end
       end
 
+      def initialize(username)
+        @username = username
+      end
+
       def transform(user_in, server_events)
         initial_state = State.new([], nil)
 
@@ -23,7 +27,8 @@ module IRCClient
                                         }
                                       }
 
-        automatic_changes = server_events.filter { |event| event.command == "JOIN" or event.command == "PART" }
+        automatic_changes = server_events.filter { |event| event.user == @username }
+                                         .filter { |event| event.command == "JOIN" or event.command == "PART" }
                                          .map { |event|
                                           proc { |s|
                                             if event.command == "JOIN"
