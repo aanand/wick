@@ -13,16 +13,9 @@ module IRCClient
       end
 
       def transform(user_in, server_events)
-        initial_state = State.new([], nil)
-
         user_commands = user_in.map { |line| UserCommand.parse(line) }.log!("user_commands")
 
-        manual_changes    = get_manual_state_changes(user_commands)
-        automatic_changes = get_automatic_state_changes(server_events)
-
-        state = manual_changes.merge(automatic_changes)
-                              .scan(initial_state) { |s, change| change.call(s) }
-
+        state = get_state(user_commands, server_events)
         state.log!("state")
 
         user_commands_with_channel = user_commands.sampling(state) { |cmd, s|
@@ -64,6 +57,16 @@ module IRCClient
         # user_out = Stream.from_array([])
 
         [user_out, user_commands_with_channel]
+      end
+
+      def get_state(user_commands, server_events)
+        manual_changes    = get_manual_state_changes(user_commands)
+        automatic_changes = get_automatic_state_changes(server_events)
+
+        initial_state = State.new([], nil)
+
+        manual_changes.merge(automatic_changes)
+                      .scan(initial_state) { |s, change| change.call(s) }
       end
 
       def get_manual_state_changes(user_commands)
