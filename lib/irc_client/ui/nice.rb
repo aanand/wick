@@ -22,17 +22,7 @@ module IRCClient
           UserCommand.new(cmd.action, cmd.argument, cs.current_channel_name)
         }.log!("user_commands_with_channel")
 
-        outgoing_messages = user_commands_with_channel.filter { |cmd| cmd.action.nil? }
-                                         .map { |cmd| [cmd.channel, @username, cmd.argument] }
-
-        incoming_messages = server_events.filter { |event| event.command == "PRIVMSG" }
-                                         .map { |event| [event.params[0], event.user, event.params[1]] }
-
-        message_log = outgoing_messages.merge(incoming_messages).scan(Hash.new([])) { |map, triple|
-          channel, user, message = *triple
-          map.merge(channel => map[channel] + ["<#{user}> #{message}"])
-        }
-
+        message_log = get_message_log(user_commands_with_channel, server_events)
         message_log.log!("message log")
 
         user_out = message_log.combine(channel_state) { |current_log, cs|
@@ -101,6 +91,19 @@ module IRCClient
                          end
                        }
                      }
+      end
+
+      def get_message_log(user_commands_with_channel, server_events)
+        outgoing_messages = user_commands_with_channel.filter { |cmd| cmd.action.nil? }
+                                         .map { |cmd| [cmd.channel, @username, cmd.argument] }
+
+        incoming_messages = server_events.filter { |event| event.command == "PRIVMSG" }
+                                         .map { |event| [event.params[0], event.user, event.params[1]] }
+
+        outgoing_messages.merge(incoming_messages).scan(Hash.new([])) { |map, triple|
+          channel, user, message = *triple
+          map.merge(channel => map[channel] + ["<#{user}> #{message}"])
+        }
       end
 
       def clear_screen
