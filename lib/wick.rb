@@ -25,7 +25,7 @@ module Wick
       write_map = Hash[writables.zip(write_streams)]
 
       write_map.each_pair do |io, stream|
-        stream.each do |line|
+        stream.skip_start.each do |line|
           io.puts(line)
         end
       end
