@@ -1,6 +1,6 @@
 require 'colored'
 
-require 'irc_client/user_command'
+require 'irc/user_command'
 
 module IRCClient
   module UI

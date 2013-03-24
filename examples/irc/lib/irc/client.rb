@@ -1,4 +1,4 @@
-require 'irc_client/server_event'
+require 'irc/server_event'
 
 module IRCClient
   class Client

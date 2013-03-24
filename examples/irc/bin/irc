@@ -1,14 +1,18 @@
 #!/usr/bin/env ruby
 
+$LOAD_PATH << File.expand_path('../../lib', __FILE__)
+$LOAD_PATH << File.expand_path('../../../../lib', __FILE__)
+
+require 'wick'
 require 'slop'
 
 require 'socket'
 
-require 'irc_client'
-require 'irc_client/client'
-require 'irc_client/ui/raw'
-require 'irc_client/ui/nice'
-require 'irc_client/manager'
+require 'irc'
+require 'irc/client'
+require 'irc/ui/raw'
+require 'irc/ui/nice'
+require 'irc/manager'
 
 opts = Slop.parse(help: true) do
   on 'host=', 'Hostname of server to connect to', default: 'localhost'
