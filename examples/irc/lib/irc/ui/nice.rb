@@ -23,7 +23,7 @@ module IRC
 
         message_log = get_message_log(user_commands, server_events).log!("message log")
 
-        user_out = render_output(channel_state, message_log) # Stream.from_array([])
+        user_out = render_output(channel_state, message_log)
 
         [user_out, user_commands]
       end
