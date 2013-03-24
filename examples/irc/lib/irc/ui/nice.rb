@@ -81,7 +81,7 @@ module IRC
 
         outgoing_messages.merge(incoming_messages).scan(Hash.new([])) { |map, triple|
           channel, user, message = *triple
-          map.merge(channel => map[channel] + ["<#{user}> #{message}"])
+          map.merge(channel => map[channel] + ["<#{user}>".yellow + " #{message}"])
         }
       end
 
