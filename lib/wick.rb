@@ -15,18 +15,6 @@ module Wick
       s
     end
 
-    def on_next_tick(&callback)
-      @tick_callbacks ||= []
-      @tick_callbacks.push(callback)
-    end
-
-    def tick!
-      return unless @tick_callbacks
-      while callback = @tick_callbacks.shift
-        callback.call()
-      end
-    end
-
     def listen!(readables, writables, &block)
       read_map = {}
       readables.each do |io|
@@ -58,6 +46,20 @@ module Wick
       end
     rescue EOFError
       puts "A connection was closed. Shutting down."
+    end
+
+    private
+
+    def on_next_tick(&callback)
+      @tick_callbacks ||= []
+      @tick_callbacks.push(callback)
+    end
+
+    def tick!
+      return unless @tick_callbacks
+      while callback = @tick_callbacks.shift
+        callback.call()
+      end
     end
   end
 end
