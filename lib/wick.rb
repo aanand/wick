@@ -2,7 +2,7 @@ require 'wick/stream'
 require 'wick/bus'
 
 module Wick
-  START = "CONNECTION_START"
+  START = Object.new.freeze
 
   class << self
     def from_array(array)

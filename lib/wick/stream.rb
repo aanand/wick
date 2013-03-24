@@ -38,6 +38,10 @@ module Wick
       s
     end
 
+    def only_start
+      filter { |msg| msg == Wick::START }
+    end
+
     def skip_start
       filter { |msg| msg != Wick::START }
     end
