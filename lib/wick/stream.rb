@@ -39,11 +39,11 @@ module Wick
     end
 
     def only_start
-      filter { |msg| msg == Wick::START }
+      filter { |msg| msg.equal?(Wick::START) }
     end
 
     def skip_start
-      filter { |msg| msg != Wick::START }
+      filter { |msg| !msg.equal?(Wick::START) }
     end
 
     def compact
