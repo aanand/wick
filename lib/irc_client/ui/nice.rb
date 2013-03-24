@@ -13,23 +13,23 @@ module IRCClient
       end
 
       def transform(user_in, server_events)
-        user_commands = user_in.map { |line| UserCommand.parse(line) }.log!("user_commands")
+        user_commands_without_channel = user_in.map { |line| UserCommand.parse(line) }.log!("user_commands_without_channel")
 
-        channel_state = get_channel_state(user_commands, server_events).log!("channel_state")
+        channel_state = get_channel_state(user_commands_without_channel, server_events).log!("channel_state")
 
-        user_commands_with_channel = user_commands.sampling(channel_state) { |cmd, cs|
+        user_commands = user_commands_without_channel.sampling(channel_state) { |cmd, cs|
           UserCommand.new(cmd.action, cmd.argument, cs.current_channel_name)
-        }.log!("user_commands_with_channel")
+        }.log!("user_commands")
 
-        message_log = get_message_log(user_commands_with_channel, server_events).log!("message log")
+        message_log = get_message_log(user_commands, server_events).log!("message log")
 
         user_out = render_output(channel_state, message_log) # Stream.from_array([])
 
-        [user_out, user_commands_with_channel]
+        [user_out, user_commands]
       end
 
-      def get_channel_state(user_commands, server_events)
-        manual_changes    = get_manual_state_changes(user_commands)
+      def get_channel_state(user_commands_without_channel, server_events)
+        manual_changes    = get_manual_state_changes(user_commands_without_channel)
         automatic_changes = get_automatic_state_changes(server_events)
 
         initial_state = ChannelState.new([], nil)
@@ -38,8 +38,8 @@ module IRCClient
                       .scan(initial_state) { |cs, change| change.call(cs) }
       end
 
-      def get_manual_state_changes(user_commands)
-        user_commands.filter { |cmd| cmd.action == :next or cmd.action == :prev }
+      def get_manual_state_changes(user_commands_without_channel)
+        user_commands_without_channel.filter { |cmd| cmd.action == :next or cmd.action == :prev }
                      .map { |cmd|
                        proc { |cs|
                          if cmd.action == :next
@@ -72,8 +72,8 @@ module IRCClient
                      }
       end
 
-      def get_message_log(user_commands_with_channel, server_events)
-        outgoing_messages = user_commands_with_channel.filter { |cmd| cmd.action.nil? }
+      def get_message_log(user_commands, server_events)
+        outgoing_messages = user_commands.filter { |cmd| cmd.action.nil? }
                                          .map { |cmd| [cmd.channel, @username, cmd.argument] }
 
         incoming_messages = server_events.filter { |event| event.command == "PRIVMSG" }
