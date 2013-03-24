@@ -2,11 +2,13 @@
 
 require 'slop'
 
+require 'socket'
+
 require 'irc_client'
 require 'irc_client/client'
 require 'irc_client/ui/raw'
 require 'irc_client/ui/nice'
-require 'irc_client/runner/socket'
+require 'irc_client/manager'
 
 opts = Slop.parse(help: true) do
   on 'host=', 'Hostname of server to connect to', default: 'localhost'
@@ -22,6 +24,12 @@ end
 
 client  = IRCClient::Client.new(opts[:nick])
 ui      = IRCClient::UI::Nice.new(opts[:nick])
-runner  = IRCClient::Runner::Socket.new(opts[:host], opts[:port], $stdin, $stdout)
+manager = IRCClient::Manager.new(client, ui)
 
-IRCClient.start!(client, ui, runner)
+socket = TCPSocket.new(opts[:host], opts[:port])
+
+Wick.listen!([socket, $stdin], [socket, $stdout]) do |read_streams|
+  network_in, user_in = read_streams
+  manager.transform(network_in, user_in)
+end
+

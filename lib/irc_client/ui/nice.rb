@@ -13,7 +13,7 @@ module IRCClient
       end
 
       def transform(user_in, server_events)
-        user_commands_without_channel = user_in.map { |line| UserCommand.parse(line) }.log!("user_commands_without_channel")
+        user_commands_without_channel = user_in.skip_start.map { |line| UserCommand.parse(line) }.log!("user_commands_without_channel")
 
         channel_state = get_channel_state(user_commands_without_channel, server_events).log!("channel_state")
 
