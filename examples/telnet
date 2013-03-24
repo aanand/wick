@@ -1,0 +1,18 @@
+#!/usr/bin/env ruby
+
+unless ARGV.length >= 1
+  $stderr.puts "Usage: #{$0} HOST [PORT]"
+  exit 1
+end
+
+$LOAD_PATH << File.expand_path('../../lib', __FILE__)
+
+require 'wick'
+require 'socket'
+
+socket = TCPSocket.new(ARGV[0], ARGV[1] || 23)
+
+Wick.listen!([socket, $stdin], [socket, $stdout]) do |read_streams|
+  network_in, user_in = read_streams
+  [user_in.skip_start, network_in.skip_start]
+end
