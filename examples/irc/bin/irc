@@ -22,7 +22,7 @@ begin
   IRC.run!(opts[:host], opts[:port], opts[:nick])
 rescue
   if $stderr.is_a?(File)
-    puts "Something went wrong. Check #{$stderr.path}."
+    puts "Something went wrong. Check #{$stderr.path}, or run again with --log '' to output to stderr."
   end
 
   raise
