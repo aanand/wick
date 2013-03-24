@@ -34,9 +34,7 @@ module Wick
         stream << Wick::START
       end
 
-      while true
-        tick!
-
+      run_loop! do
         ready = IO.select(read_map.keys)
         ready[0].each do |io|
           io.read_nonblock(1_000_000).each_line do |line|
@@ -46,6 +44,13 @@ module Wick
       end
     rescue EOFError
       puts "A connection was closed. Shutting down."
+    end
+
+    def run_loop!(&block)
+      while true
+        tick!
+        block.call()
+      end
     end
 
     private
