@@ -2,7 +2,7 @@ require 'colored'
 
 require 'irc/user_command'
 
-module IRCClient
+module IRC
   module UI
     class Raw
       def transform(user_in, server_events)

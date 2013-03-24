@@ -1,6 +1,6 @@
 # Copied from https://github.com/Nerdmaster/ruby-irc-yail/blob/develop/lib/net/yail/message_parser.rb
 
-module IRCClient
+module IRC
   class ServerEvent
     attr_reader :nick, :user, :host, :prefix, :command, :params, :servername
 

@@ -3,16 +3,7 @@
 $LOAD_PATH << File.expand_path('../../lib', __FILE__)
 $LOAD_PATH << File.expand_path('../../../../lib', __FILE__)
 
-require 'wick'
 require 'slop'
-
-require 'socket'
-
-require 'irc'
-require 'irc/client'
-require 'irc/ui/raw'
-require 'irc/ui/nice'
-require 'irc/manager'
 
 opts = Slop.parse(help: true) do
   on 'host=', 'Hostname of server to connect to', default: 'localhost'
@@ -26,14 +17,15 @@ if opts[:log] != ''
   $stderr.sync = true
 end
 
-client  = IRCClient::Client.new(opts[:nick])
-ui      = IRCClient::UI::Nice.new(opts[:nick])
-manager = IRCClient::Manager.new(client, ui)
+require 'irc'
 
-socket = TCPSocket.new(opts[:host], opts[:port])
+begin
+  IRC.run!(opts[:host], opts[:port], opts[:nick])
+rescue
+  if $stderr.is_a?(File)
+    puts "Something went wrong. Check #{$stderr.path}."
+  end
 
-Wick.listen!([socket, $stdin], [socket, $stdout]) do |read_streams|
-  network_in, user_in = read_streams
-  manager.transform(network_in, user_in)
+  raise
 end
 

@@ -1,4 +1,4 @@
-module IRCClient
+module IRC
   class Manager
     def initialize(client, ui)
       @client = client

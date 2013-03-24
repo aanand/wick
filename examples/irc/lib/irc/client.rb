@@ -1,6 +1,6 @@
 require 'irc/server_event'
 
-module IRCClient
+module IRC
   class Client
     def initialize(username)
       @username = username

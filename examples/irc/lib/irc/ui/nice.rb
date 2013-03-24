@@ -1,4 +1,4 @@
-module IRCClient
+module IRC
   module UI
     class Nice
       class ChannelState < Struct.new(:joined_channels, :current_index)
