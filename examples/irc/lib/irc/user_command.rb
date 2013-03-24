@@ -35,7 +35,11 @@ module IRC
     end
 
     def with_channel(channel_name)
-      UserCommand.new(action, argument, channel_name)
+      if channel
+        self
+      else
+        UserCommand.new(action, argument, channel_name)
+      end
     end
   end
 end
