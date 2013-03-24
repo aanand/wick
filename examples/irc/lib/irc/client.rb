@@ -15,7 +15,18 @@ module IRC
       ping = server_events.filter { |msg| msg.command == "PING" }
       pong = ping.map { |msg| "PONG " + msg.params.join(" ") }
 
-      outgoing = user_commands.map { |cmd|
+      outgoing = process_user_commands(user_commands)
+
+      network_out = outgoing.merge(nick_and_user_msgs).merge(pong)
+
+      server_events.log!("server_events")
+      network_out.log!("network_out")
+
+      [network_out, server_events]
+    end
+
+    def process_user_commands(user_commands)
+      user_commands.map { |cmd|
         case cmd.action
         when nil
           if cmd.channel
@@ -39,13 +50,6 @@ module IRC
           nil
         end
       }.compact
-
-      network_out = outgoing.merge(nick_and_user_msgs).merge(pong)
-
-      server_events.log!("server_events")
-      network_out.log!("network_out")
-
-      [network_out, server_events]
     end
   end
 end
