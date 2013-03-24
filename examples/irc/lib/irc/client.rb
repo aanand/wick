@@ -26,16 +26,11 @@ module IRC
         when :me
           cmd.channel && "PRIVMSG #{cmd.channel} :\x01ACTION #{cmd.argument}\x01"
         when :msg
-          user, msg = cmd.argument.split(/\s+/, 2)
-          "PRIVMSG #{user} :#{msg}"
+          "PRIVMSG #{cmd.channel} :#{cmd.argument}"
         when :join
-          channel = cmd.argument
-          channel = "##{channel}" unless channel =~ /^#/
-          "JOIN #{channel}"
-        when :leave, :part
-          channel = cmd.argument
-          channel = "##{channel}" unless channel =~ /^#/
-          "PART #{channel}"
+          "JOIN #{cmd.channel}"
+        when :part
+          "PART #{cmd.channel}"
         when :quit
           "QUIT :#{cmd.argument}"
         when :raw

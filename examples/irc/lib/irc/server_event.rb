@@ -2,7 +2,7 @@
 
 module IRC
   class ServerEvent
-    attr_reader :nick, :user, :host, :prefix, :command, :params, :servername
+    attr_reader :line, :nick, :user, :host, :prefix, :command, :params, :servername
 
     USER        = /\S+?/
     NICK        = /[\w\d\\|`'^{}\]\[-]+?/

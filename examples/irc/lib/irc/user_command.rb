@@ -15,7 +15,15 @@ module IRC
       line = line.chomp
 
       if match = line.match(REGEX)
-        new(match[1].downcase.to_sym, match[3], nil)
+        action   = match[1].downcase.to_sym
+        argument = match[3]
+        channel  = nil
+
+        if [:msg, :join, :part].include?(action)
+          channel, argument = argument.split(/\s+/, 2)
+        end
+
+        new(action, argument, channel)
       else
         new(nil, line, nil)
       end
