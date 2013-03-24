@@ -17,9 +17,8 @@ if opts[:log] != ''
   $stderr.sync = true
 end
 
-require 'irc'
-
 begin
+  require 'irc'
   IRC.run!(opts[:host], opts[:port], opts[:nick])
 rescue
   if $stderr.is_a?(File)
