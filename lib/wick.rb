@@ -58,13 +58,6 @@ module Wick
       end
     rescue EOFError
       puts "A connection was closed. Shutting down."
-    ensure
-      [read_map, write_map].each do |map|
-        next unless map
-        map.keys.each do |io|
-          io.close unless io.closed?
-        end
-      end
     end
   end
 end
