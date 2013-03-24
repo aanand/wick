@@ -25,23 +25,7 @@ module IRCClient
         message_log = get_message_log(user_commands_with_channel, server_events)
         message_log.log!("message log")
 
-        user_out = message_log.combine(channel_state) { |current_log, cs|
-          if current_log and cs
-            tabs = cs.joined_channels.map { |c|
-              if c == cs.current_channel_name
-                c.green
-              else
-                c
-              end
-            }
-
-            channel_log = current_log[cs.current_channel_name].last(20)
-
-            clear_screen + move_to(1,1) + tabs.join(" ") + "\n" + channel_log.join("\n")
-          else
-            ""
-          end
-        }
+        user_out = render_output(channel_state, message_log)
 
         # uncomment to disable nice UI and view debug output
         # user_out = Stream.from_array([])
@@ -103,6 +87,26 @@ module IRCClient
         outgoing_messages.merge(incoming_messages).scan(Hash.new([])) { |map, triple|
           channel, user, message = *triple
           map.merge(channel => map[channel] + ["<#{user}> #{message}"])
+        }
+      end
+
+      def render_output(channel_state, message_log)
+        message_log.combine(channel_state) { |current_log, cs|
+          if current_log and cs
+            tabs = cs.joined_channels.map { |c|
+              if c == cs.current_channel_name
+                c.green
+              else
+                c
+              end
+            }
+
+            channel_log = current_log[cs.current_channel_name].last(20)
+
+            clear_screen + move_to(1,1) + tabs.join(" ") + "\n" + channel_log.join("\n")
+          else
+            ""
+          end
         }
       end
 
