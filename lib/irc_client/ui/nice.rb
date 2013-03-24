@@ -18,7 +18,7 @@ module IRCClient
         channel_state = get_channel_state(user_commands_without_channel, server_events).log!("channel_state")
 
         user_commands = user_commands_without_channel.sampling(channel_state) { |cmd, cs|
-          UserCommand.new(cmd.action, cmd.argument, cs.current_channel_name)
+          cmd.with_channel(cs.current_channel_name)
         }.log!("user_commands")
 
         message_log = get_message_log(user_commands, server_events).log!("message log")

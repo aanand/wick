@@ -25,5 +25,9 @@ module IRCClient
       super(*args)
       freeze
     end
+
+    def with_channel(channel_name)
+      UserCommand.new(action, argument, channel_name)
+    end
   end
 end
