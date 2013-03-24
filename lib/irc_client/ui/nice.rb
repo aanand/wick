@@ -15,20 +15,15 @@ module IRCClient
       def transform(user_in, server_events)
         user_commands = user_in.map { |line| UserCommand.parse(line) }.log!("user_commands")
 
-        channel_state = get_channel_state(user_commands, server_events)
-        channel_state.log!("channel_state")
+        channel_state = get_channel_state(user_commands, server_events).log!("channel_state")
 
         user_commands_with_channel = user_commands.sampling(channel_state) { |cmd, cs|
           UserCommand.new(cmd.action, cmd.argument, cs.current_channel_name)
         }.log!("user_commands_with_channel")
 
-        message_log = get_message_log(user_commands_with_channel, server_events)
-        message_log.log!("message log")
+        message_log = get_message_log(user_commands_with_channel, server_events).log!("message log")
 
-        user_out = render_output(channel_state, message_log)
-
-        # uncomment to disable nice UI and view debug output
-        # user_out = Stream.from_array([])
+        user_out = render_output(channel_state, message_log) # Stream.from_array([])
 
         [user_out, user_commands_with_channel]
       end
