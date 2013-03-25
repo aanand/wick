@@ -1,0 +1,24 @@
+#!/usr/bin/env ruby
+
+$LOAD_PATH << File.expand_path('../../lib', __FILE__)
+
+require 'wick/io'
+
+Wick::IO.listen!($stdin, $stdout) do |input|
+  initial = {
+    total: 0,
+    message: "Type one number per line. Enter a blank line to calculate total and reset.\n\n"
+  }
+
+  input
+    .skip_start
+    .scan(initial) { |state, line|
+      if line.strip.empty?
+        {message: "Total: #{state[:total]}\n\n", total: 0}
+      else
+        {total: state[:total] + line.to_f}
+      end
+    }
+    .map { |state| state[:message] }
+    .compact
+end

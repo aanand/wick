@@ -3,13 +3,19 @@ require 'wick'
 module Wick
   module IO
     def self.listen!(readables, writables, &block)
+      readables_array = [readables].flatten
+      writables_array = [writables].flatten
+
       read_map = {}
-      readables.each do |io|
+      readables_array.each do |io|
         read_map[io] = Stream.new
       end
 
-      write_streams = block.call(read_map.values)
-      write_map = Hash[writables.zip(write_streams)]
+      block_arg = read_map.values
+      block_arg = block_arg.first if readables_array != readables
+
+      write_streams = [block.call(block_arg)].flatten
+      write_map = Hash[writables_array.zip(write_streams)]
 
       write_map.each_pair do |io, stream|
         stream.skip_start.each do |line|
