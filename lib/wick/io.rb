@@ -18,13 +18,13 @@ module Wick
       write_map = Hash[writables_array.zip(write_streams)]
 
       write_map.each_pair do |io, stream|
-        stream.skip_start.each do |line|
+        stream.each do |line|
           io.puts(line)
         end
       end
 
       read_map.values.each do |stream|
-        stream << Wick::START
+        stream.start!
       end
 
       Wick.run_loop! do

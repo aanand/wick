@@ -8,9 +8,9 @@ module Nice
     end
 
     def transform(network_in, user_commands)
-      server_events = network_in.skip_start.map { |line| IRCEvent.parse(line) }
+      server_events = network_in.map { |line| IRCEvent.parse(line) }
 
-      nick_and_user_msgs = network_in.only_start.flat_map { |_| Wick.from_array(["NICK #{@username}", "USER #{@username} () * FRiPpery"]) }
+      nick_and_user_msgs = network_in.at_start.flat_map { |_| Wick.from_array(["NICK #{@username}", "USER #{@username} () * FRiPpery"]) }
 
       ping = server_events.filter { |msg| msg.command == "PING" }
       pong = ping.map { |msg| "PONG " + msg.params.join(" ") }

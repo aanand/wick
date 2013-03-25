@@ -6,5 +6,5 @@ $LOAD_PATH << File.expand_path('../../lib', __FILE__)
 require 'wick/io'
 
 Wick::IO.listen!($stdin, $stdout) do |input|
-  input.skip_start.map { |line| "Haha! You said “#{line.chomp}”." }
+  input.map { |line| "Haha! You said “#{line.chomp}”." }
 end

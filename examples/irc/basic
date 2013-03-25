@@ -28,7 +28,7 @@ def main
 
     client_commands, server_events = client.transform(network_in)
 
-    network_out = user_in.skip_start.merge(client_commands)
+    network_out = user_in.merge(client_commands)
     user_out    = ui.transform(server_events, client_commands)
 
     [network_out, user_out]
@@ -37,11 +37,11 @@ end
 
 class Client < Struct.new(:nick)
   def transform(network_in)
-    nick_and_user_msgs = network_in.only_start.flat_map { |_|
+    nick_and_user_msgs = network_in.at_start.flat_map { |_|
       Wick.from_array(["NICK #{nick}", "USER #{nick} () * #{nick}"])
     }
 
-    server_events = network_in.skip_start.map { |line| IRCEvent.parse(line) }
+    server_events = network_in.map { |line| IRCEvent.parse(line) }
 
     ping = server_events.filter { |msg| msg.command == "PING" }
     pong = ping.map { |msg| "PONG " + msg.params.join(" ") }

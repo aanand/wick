@@ -2,6 +2,7 @@ module Wick
   class Stream
     def initialize
       @handlers = []
+      @start_callbacks = []
     end
 
     def <<(data)
@@ -12,6 +13,16 @@ module Wick
 
     def each(&handler)
       @handlers << handler
+    end
+
+    def at_start
+      s = Stream.new
+      @start_callbacks.push(proc { s << Wick::START })
+      s
+    end
+
+    def start!
+      @start_callbacks.each(&:call)
     end
 
     def map(&transformer)
@@ -36,14 +47,6 @@ module Wick
         s << msg if predicate.call(msg)
       end
       s
-    end
-
-    def only_start
-      filter { |msg| msg.equal?(Wick::START) }
-    end
-
-    def skip_start
-      filter { |msg| !msg.equal?(Wick::START) }
     end
 
     def compact
