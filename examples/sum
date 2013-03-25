@@ -7,18 +7,18 @@ require 'wick/io'
 Wick::IO.listen!($stdin, $stdout) do |input|
   initial = {
     total: 0,
-    message: "Type one number per line. Enter a blank line to calculate total and reset.\n\n"
+    message: "Type one number per line. Enter a blank line to calculate total and reset."
   }
 
   input
     .skip_start
     .scan(initial) { |state, line|
       if line.strip.empty?
-        {message: "Total: #{state[:total]}\n\n", total: 0}
+        {message: "Total: #{state[:total]}", total: 0}
       else
         {total: state[:total] + line.to_f}
       end
     }
-    .map { |state| state[:message] }
-    .compact
+    .filter { |state| state.has_key?(:message) }
+    .map { |state| state[:message] + "\n\n" }
 end
