@@ -1,6 +1,6 @@
-require 'irc/server_event'
+require 'irc_event'
 
-module IRC
+module Nice
   class Client
     def initialize(username)
       @username = username
@@ -8,7 +8,7 @@ module IRC
     end
 
     def transform(network_in, user_commands)
-      server_events = network_in.skip_start.map { |line| ServerEvent.parse(line) }
+      server_events = network_in.skip_start.map { |line| IRCEvent.parse(line) }
 
       nick_and_user_msgs = network_in.only_start.flat_map { |_| Wick.from_array(["NICK #{@username}", "USER #{@username} () * FRiPpery"]) }
 

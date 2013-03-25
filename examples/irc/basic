@@ -1,0 +1,74 @@
+#!/usr/bin/env ruby
+
+unless ARGV.length >= 1
+  $stderr.puts "Usage: #{$0} HOST [PORT [NICK]]"
+  exit 1
+end
+
+$LOAD_PATH << File.expand_path('../../../lib', __FILE__)
+$LOAD_PATH << File.expand_path('../lib', __FILE__)
+
+require 'wick/io'
+require 'irc_event'
+require 'socket'
+require 'colored'
+
+def main
+  host = ARGV.fetch(0)
+  port = ARGV.fetch(1) { "6667"     }
+  nick = ARGV.fetch(2) { "frippery" }
+
+  socket = TCPSocket.new(host, port)
+
+  Wick::IO.listen!([socket, $stdin], [socket, $stdout]) do |read_streams|
+    network_in, user_in = read_streams
+
+    client = Client.new(nick)
+    ui     = UI.new
+
+    client_commands, server_events = client.transform(network_in)
+
+    network_out = user_in.skip_start.merge(client_commands)
+    user_out    = ui.transform(server_events, client_commands)
+
+    [network_out, user_out]
+  end
+end
+
+class Client < Struct.new(:nick)
+  def transform(network_in)
+    nick_and_user_msgs = network_in.only_start.flat_map { |_|
+      Wick.from_array(["NICK #{nick}", "USER #{nick} () * #{nick}"])
+    }
+
+    server_events = network_in.skip_start.map { |line| IRCEvent.parse(line) }
+
+    ping = server_events.filter { |msg| msg.command == "PING" }
+    pong = ping.map { |msg| "PONG " + msg.params.join(" ") }
+
+    commands = nick_and_user_msgs.merge(pong)
+
+    [commands, server_events]
+  end
+end
+
+class UI
+  def transform(server_events, client_commands)
+    incoming_messages = server_events.filter { |event| event.command == "PRIVMSG" }
+    other_events      = server_events.filter { |event| event.command != "PRIVMSG" }
+
+    message_lines = incoming_messages.map { |event|
+      channel = event.params[0]
+      user    = "<#{event.user}>"
+      message = event.params[1]
+
+      "#{channel.green} #{user.yellow} #{message}"
+    }
+
+    message_lines
+      .merge(other_events.map { |event| "< #{event.line}".blue })
+      .merge(client_commands.map { |line| "> #{line}".blue })
+  end
+end
+
+main

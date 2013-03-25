@@ -1,4 +1,4 @@
-module IRC
+module Nice
   class UserCommand < Struct.new(:action, :argument, :channel)
     REGEX = /
       ^

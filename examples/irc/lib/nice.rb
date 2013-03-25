@@ -1,15 +1,14 @@
 require 'wick/io'
 require 'socket'
 
-require 'irc/client'
-require 'irc/ui/basic'
-require 'irc/ui/nice'
-require 'irc/manager'
+require 'nice/client'
+require 'nice/ui'
+require 'nice/manager'
 
-module IRC
-  def self.run!(host, port, nick, basic)
+module Nice
+  def self.run!(host, port, nick)
     client  = Client.new(nick)
-    ui      = basic ? UI::Basic.new(nick) : UI::Nice.new(nick)
+    ui      = UI.new(nick)
     manager = Manager.new(client, ui)
 
     socket = TCPSocket.new(host, port)

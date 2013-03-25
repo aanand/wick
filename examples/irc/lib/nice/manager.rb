@@ -1,4 +1,4 @@
-module IRC
+module Nice
   class Manager
     def initialize(client, ui)
       @client = client

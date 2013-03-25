@@ -1,15 +1,15 @@
 #!/usr/bin/env ruby
 
-$LOAD_PATH << File.expand_path('../../lib', __FILE__)
-$LOAD_PATH << File.expand_path('../../../../lib', __FILE__)
+$LOAD_PATH << File.expand_path('../../../lib', __FILE__)
+$LOAD_PATH << File.expand_path('../lib', __FILE__)
 
 require 'slop'
+require 'nice'
 
 opts = Slop.parse(help: true) do
   on 'host=', 'Hostname of server to connect to', default: 'localhost'
   on 'port=', 'Port to connect to',               default: '6667'
   on 'nick=', 'Nick (and username) to use',       default: 'frippery'
-  on 'basic', 'Stripped-down user interface'
   on 'log=',  'Filename to log to (default: irc.log, stderr if blank)', default: 'irc.log'
 end
 
@@ -19,8 +19,7 @@ if opts[:log] != ''
 end
 
 begin
-  require 'irc'
-  IRC.run!(opts[:host], opts[:port], opts[:nick], opts.basic?)
+  Nice.run!(opts[:host], opts[:port], opts[:nick])
 rescue
   if $stderr.is_a?(File)
     puts "Something went wrong. Check #{$stderr.path}, or run again with --log '' to output to stderr."
