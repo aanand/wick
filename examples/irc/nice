@@ -7,11 +7,19 @@ require 'slop'
 require 'nice'
 
 opts = Slop.parse(help: true) do
-  on 'host=', 'Hostname of server to connect to', default: 'localhost'
+  banner "Usage: #{$0} HOST [OPTIONS]"
+
   on 'port=', 'Port to connect to',               default: '6667'
   on 'nick=', 'Nick (and username) to use',       default: 'frippery'
   on 'log=',  'Filename to log to (default: irc.log, stderr if blank)', default: 'irc.log'
 end
+
+if ARGV.length != 1
+  puts opts
+  exit 1
+end
+
+host = ARGV.fetch(0)
 
 if opts[:log] != ''
   $stderr.reopen File.open(opts[:log], 'a')
@@ -19,7 +27,7 @@ if opts[:log] != ''
 end
 
 begin
-  Nice.run!(opts[:host], opts[:port], opts[:nick])
+  Nice.run!(host, opts[:port], opts[:nick])
 rescue
   if $stderr.is_a?(File)
     puts "Something went wrong. Check #{$stderr.path}, or run again with --log '' to output to stderr."
