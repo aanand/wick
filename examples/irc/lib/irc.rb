@@ -1,4 +1,4 @@
-require 'wick'
+require 'wick/io'
 require 'socket'
 
 require 'irc/client'
@@ -14,7 +14,7 @@ module IRC
 
     socket = TCPSocket.new(host, port)
 
-    Wick.listen!([socket, $stdin], [socket, $stdout]) do |read_streams|
+    Wick::IO.listen!([socket, $stdin], [socket, $stdout]) do |read_streams|
       network_in, user_in = read_streams
       manager.transform(network_in, user_in)
     end

@@ -7,12 +7,12 @@ end
 
 $LOAD_PATH << File.expand_path('../../lib', __FILE__)
 
-require 'wick'
+require 'wick/io'
 require 'socket'
 
 socket = TCPSocket.new(ARGV[0], ARGV[1] || 23)
 
-Wick.listen!([socket, $stdin], [socket, $stdout]) do |read_streams|
+Wick::IO.listen!([socket, $stdin], [socket, $stdout]) do |read_streams|
   network_in, user_in = read_streams
   [user_in, network_in]
 end
