@@ -23,37 +23,34 @@ def main
   Wick::IO.listen!([socket, $stdin], [socket, $stdout]) do |read_streams|
     network_in, user_in = read_streams
 
-    client = Client.new(nick)
-    ui     = UI.new
+    server_events = network_in.map { |line| IRCEvent.parse(line) }
 
-    client_commands, server_events = client.transform(network_in)
+    client          = Client.new(nick)
+    client_commands = client.transform(server_events)
+    network_out     = user_in.merge(client_commands)
 
-    network_out = user_in.merge(client_commands)
-    user_out    = ui.transform(server_events, client_commands)
+    ui       = UI.new
+    user_out = ui.transform(client_commands, server_events)
 
     [network_out, user_out]
   end
 end
 
 class Client < Struct.new(:nick)
-  def transform(network_in)
-    nick_and_user_msgs = network_in.at_start.flat_map { |_|
-      Wick.from_array(["NICK #{nick}", "USER #{nick} () * #{nick}"])
+  def transform(server_events)
+    nick_and_user = server_events.at_start.map { |_|
+      "NICK #{nick}" + "\n" + "USER #{nick} () * #{nick}"
     }
-
-    server_events = network_in.map { |line| IRCEvent.parse(line) }
 
     ping = server_events.filter { |msg| msg.command == "PING" }
     pong = ping.map { |msg| "PONG " + msg.params.join(" ") }
 
-    commands = nick_and_user_msgs.merge(pong)
-
-    [commands, server_events]
+    nick_and_user.merge(pong)
   end
 end
 
 class UI
-  def transform(server_events, client_commands)
+  def transform(client_commands, server_events)
     incoming_messages = server_events.filter { |event| event.command == "PRIVMSG" }
     other_events      = server_events.filter { |event| event.command != "PRIVMSG" }
 

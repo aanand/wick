@@ -3,6 +3,10 @@ module Wick
     def initialize
       @handlers = []
       @start_callbacks = []
+
+      Wick.on_next_tick do
+        self.start!
+      end
     end
 
     def <<(data)

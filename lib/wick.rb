@@ -22,12 +22,12 @@ module Wick
       end
     end
 
-    private
-
     def on_next_tick(&callback)
       @tick_callbacks ||= []
       @tick_callbacks.push(callback)
     end
+
+    private
 
     def tick!
       return unless @tick_callbacks

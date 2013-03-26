@@ -10,14 +10,14 @@ module Nice
     def transform(network_in, user_commands)
       server_events = network_in.map { |line| IRCEvent.parse(line) }
 
-      nick_and_user_msgs = network_in.at_start.flat_map { |_| Wick.from_array(["NICK #{@username}", "USER #{@username} () * FRiPpery"]) }
+      nick_and_user = network_in.at_start.flat_map { |_| Wick.from_array(["NICK #{@username}", "USER #{@username} () * FRiPpery"]) }
 
       ping = server_events.filter { |msg| msg.command == "PING" }
       pong = ping.map { |msg| "PONG " + msg.params.join(" ") }
 
       outgoing = process_user_commands(user_commands)
 
-      network_out = outgoing.merge(nick_and_user_msgs).merge(pong)
+      network_out = outgoing.merge(nick_and_user).merge(pong)
 
       server_events.log!("server_events")
       network_out.log!("network_out")

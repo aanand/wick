@@ -7,6 +7,26 @@ module Nice
       def current_channel_name
         current_index && joined_channels[current_index]
       end
+
+      def update_channel_index(inc)
+        ChannelState.new(
+          joined_channels,
+          (channel_index + inc) % joined_channels.length)
+      end
+
+      def join_channel(name)
+        new_list = joined_channels | [name]
+        new_idx  = new_list.length-1
+
+        ChannelState.new(new_list, new_idx)
+      end
+
+      def part_channel(name)
+        new_list = joined_channels - [name]
+        new_idx  = [channel_index, new_list.length-1].min
+
+        ChannelState.new(new_list, new_idx)
+      end
     end
 
     def initialize(username)
@@ -45,9 +65,9 @@ module Nice
                    .map { |cmd|
                      proc { |cs|
                        if cmd.action == :next
-                         ChannelState.new(cs.joined_channels, (cs.current_index+1) % cs.joined_channels.length)
+                         cs.update_channel_index(+1)
                        elsif cmd.action == :prev
-                         ChannelState.new(cs.joined_channels, (cs.current_index-1) % cs.joined_channels.length)
+                         cs.update_channel_index(-1)
                        end
                      }
                    }
@@ -59,16 +79,9 @@ module Nice
                    .map { |event|
                      proc { |cs|
                        if event.command == "JOIN"
-                         channel = event.params.first
-                         new_channel_list = cs.joined_channels | [channel]
-                         ChannelState.new(new_channel_list, new_channel_list.index(channel))
+                         cs.join_channel(event.params.first)
                        elsif event.command == "PART"
-                         channel = event.params.first
-
-                         new_channel_list  = cs.joined_channels - [channel]
-                         new_channel_index = [cs.current_index, new_channel_list.length-1].min
-
-                         ChannelState.new(new_channel_list, new_channel_index)
+                         cs.part_channel(event.params.first)
                        end
                      }
                    }
