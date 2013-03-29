@@ -12,7 +12,7 @@ module Nice
 
       nick_and_user = network_in.at_start.flat_map { |_| Wick.from_array(["NICK #{@username}", "USER #{@username} () * FRiPpery"]) }
 
-      ping = server_events.filter { |msg| msg.command == "PING" }
+      ping = server_events.select { |msg| msg.command == "PING" }
       pong = ping.map { |msg| "PONG " + msg.params.join(" ") }
 
       outgoing = process_user_commands(user_commands)

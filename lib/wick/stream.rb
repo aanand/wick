@@ -45,7 +45,7 @@ module Wick
       s
     end
 
-    def filter(&predicate)
+    def select(&predicate)
       s = Stream.new
       self.each do |msg|
         s << msg if predicate.call(msg)
@@ -54,7 +54,7 @@ module Wick
     end
 
     def compact
-      filter { |msg| not msg.nil? }
+      select { |msg| not msg.nil? }
     end
 
     def merge(other)

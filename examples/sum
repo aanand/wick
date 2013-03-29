@@ -18,6 +18,6 @@ Wick::IO.listen!($stdin, $stdout) do |input|
         {total: state[:total] + line.to_f}
       end
     }
-    .filter { |state| state.has_key?(:message) }
-    .map { |state| state[:message] + "\n\n" }
+    .select { |state| state.has_key?(:message) }
+    .map    { |state| state[:message] + "\n\n" }
 end

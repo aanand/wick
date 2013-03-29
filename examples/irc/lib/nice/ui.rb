@@ -61,7 +61,7 @@ module Nice
     end
 
     def get_manual_state_changes(user_commands_without_channel)
-      user_commands_without_channel.filter { |cmd| cmd.action == :next or cmd.action == :prev }
+      user_commands_without_channel.select { |cmd| cmd.action == :next or cmd.action == :prev }
                    .map { |cmd|
                      proc { |cs|
                        if cmd.action == :next
@@ -74,8 +74,8 @@ module Nice
     end
 
     def get_automatic_state_changes(server_events)
-      server_events.filter { |event| event.user == @username }
-                   .filter { |event| event.command == "JOIN" or event.command == "PART" }
+      server_events.select { |event| event.user == @username }
+                   .select { |event| event.command == "JOIN" or event.command == "PART" }
                    .map { |event|
                      proc { |cs|
                        if event.command == "JOIN"
@@ -88,10 +88,10 @@ module Nice
     end
 
     def get_message_log(user_commands, server_events)
-      outgoing_messages = user_commands.filter { |cmd| cmd.action.nil? }
+      outgoing_messages = user_commands.select { |cmd| cmd.action.nil? }
                                        .map { |cmd| [cmd.channel, @username, cmd.argument] }
 
-      incoming_messages = server_events.filter { |event| event.command == "PRIVMSG" }
+      incoming_messages = server_events.select { |event| event.command == "PRIVMSG" }
                                        .map { |event| [event.params[0], event.user, event.params[1]] }
 
       outgoing_messages.merge(incoming_messages).scan(Hash.new([])) { |map, triple|

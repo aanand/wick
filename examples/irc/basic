@@ -42,7 +42,7 @@ class Client < Struct.new(:nick)
       "NICK #{nick}" + "\n" + "USER #{nick} () * #{nick}"
     }
 
-    ping = server_events.filter { |msg| msg.command == "PING" }
+    ping = server_events.select { |msg| msg.command == "PING" }
     pong = ping.map { |msg| "PONG " + msg.params.join(" ") }
 
     nick_and_user.merge(pong)
@@ -51,8 +51,8 @@ end
 
 class UI
   def transform(client_commands, server_events)
-    incoming_messages = server_events.filter { |event| event.command == "PRIVMSG" }
-    other_events      = server_events.filter { |event| event.command != "PRIVMSG" }
+    incoming_messages = server_events.select { |event| event.command == "PRIVMSG" }
+    other_events      = server_events.select { |event| event.command != "PRIVMSG" }
 
     message_lines = incoming_messages.map { |event|
       channel = event.params[0]
