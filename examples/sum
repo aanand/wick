@@ -4,7 +4,7 @@ $LOAD_PATH << File.expand_path('../../lib', __FILE__)
 
 require 'wick/io'
 
-Wick::IO.listen!($stdin, $stdout) do |input|
+Wick::IO.bind(read: $stdin, write: $stdout) do |input|
   initial = {
     total: 0,
     message: "Type one number per line. Enter a blank line to calculate total and reset."

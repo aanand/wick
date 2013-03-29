@@ -12,7 +12,9 @@ require 'socket'
 
 socket = TCPSocket.new(ARGV[0], ARGV[1] || 23)
 
-Wick::IO.listen!([socket, $stdin], [socket, $stdout]) do |read_streams|
-  network_in, user_in = read_streams
+Wick::IO.bind(
+  read:  [socket, $stdin],
+  write: [socket, $stdout]
+) do |network_in, user_in|
   [user_in, network_in]
 end

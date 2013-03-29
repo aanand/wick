@@ -2,9 +2,9 @@ require 'wick'
 
 module Wick
   module IO
-    def self.listen!(readables, writables, &block)
-      readables_array = [readables].flatten
-      writables_array = [writables].flatten
+    def self.bind(options, &block)
+      readables_array = [options[:read]].flatten
+      writables_array = [options[:write]].flatten
 
       read_map = {}
       readables_array.each do |io|
@@ -12,9 +12,8 @@ module Wick
       end
 
       block_arg = read_map.values
-      block_arg = block_arg.first if readables_array != readables
 
-      write_streams = [block.call(block_arg)].flatten
+      write_streams = [block.call(*block_arg)].flatten
       write_map = Hash[writables_array.zip(write_streams)]
 
       write_map.each_pair do |io, stream|

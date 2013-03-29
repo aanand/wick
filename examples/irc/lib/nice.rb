@@ -13,8 +13,10 @@ module Nice
 
     socket = TCPSocket.new(host, port)
 
-    Wick::IO.listen!([socket, $stdin], [socket, $stdout]) do |read_streams|
-      network_in, user_in = read_streams
+    Wick::IO.bind(
+      read:  [socket, $stdin],
+      write: [socket, $stdout]
+    ) do |network_in, user_in|
       manager.transform(network_in, user_in)
     end
   end

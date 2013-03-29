@@ -20,9 +20,10 @@ def main
 
   socket = TCPSocket.new(host, port)
 
-  Wick::IO.listen!([socket, $stdin], [socket, $stdout]) do |read_streams|
-    network_in, user_in = read_streams
-
+  Wick::IO.bind(
+    read:  [socket, $stdin],
+    write: [socket, $stdout]
+  ) do |network_in, user_in|
     server_events = network_in.map { |line| IRCEvent.parse(line) }
 
     client          = Client.new(nick)
