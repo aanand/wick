@@ -10,7 +10,7 @@ module Nice
     def transform(network_in, user_commands)
       server_events = network_in.map { |line| IRCEvent.parse(line) }
 
-      nick_and_user = network_in.at_start.flat_map { |_| Wick.from_array(["NICK #{@username}", "USER #{@username} () * FRiPpery"]) }
+      nick_and_user = Wick.from_array(["NICK #{@username}", "USER #{@username} () * FRiPpery"])
 
       ping = server_events.select { |msg| msg.command == "PING" }
       pong = ping.map { |msg| "PONG " + msg.params.join(" ") }
