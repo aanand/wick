@@ -5,19 +5,18 @@ $LOAD_PATH << File.expand_path('../../lib', __FILE__)
 require 'wick/io'
 
 Wick::IO.bind(read: $stdin, write: $stdout) do |input|
-  initial = {
-    total: 0,
-    message: "Type one number per line. Enter a blank line to calculate total and reset."
-  }
+  initial = {total: 0}
 
-  input
-    .scan(initial) { |state, line|
-      if line.strip.empty?
-        {message: "Total: #{state[:total]}", total: 0}
-      else
-        {total: state[:total] + line.to_f}
-      end
-    }
-    .select { |state| state.has_key?(:message) }
-    .map    { |state| state[:message] + "\n\n" }
+  state = input.scan(initial) { |s, line|
+    if line.strip.empty?
+      {total: 0, message: "Total: #{s[:total]}"}
+    else
+      {total: s[:total] + line.to_f}
+    end
+  }
+  
+  output = state.select { |s| s.has_key?(:message) }
+                .map    { |s| s[:message] + "\n\n" }
+
+  output
 end
