@@ -65,8 +65,8 @@ class UI
     }
 
     message_lines
-      .merge(other_events.map { |event| "< #{event.line}".blue })
-      .merge(client_commands.map { |line| "> #{line}".blue })
+      .merge(other_events.map { |event| "< #{event.line}".magenta })
+      .merge(client_commands.map { |line| "> #{line}".magenta })
   end
 end
 
