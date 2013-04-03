@@ -1,16 +1,19 @@
 require 'irc_event'
 
 module Nice
-  class Client
-    def initialize(username)
-      @username = username
+  class Client < Struct.new(:nick)
+    def initialize(*args)
+      super(*args)
       freeze
     end
 
     def transform(network_in, user_commands)
       server_events = network_in.map { |line| IRCEvent.parse(line) }
 
-      nick_and_user = Wick.from_array(["NICK #{@username}", "USER #{@username} () * FRiPpery"])
+      nick_and_user = Wick.from_array([
+        "NICK #{nick}",
+        "USER #{nick} () * #{nick}"
+      ])
 
       ping = server_events.select { |msg| msg.command == "PING" }
       pong = ping.map { |msg| "PONG " + msg.params.join(" ") }
