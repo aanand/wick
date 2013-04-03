@@ -39,7 +39,10 @@ end
 
 class Client < Struct.new(:nick)
   def transform(server_events)
-    nick_and_user = Wick.from_array(["NICK #{nick}", "USER #{nick} () * #{nick}"])
+    nick_and_user = Wick.from_array([
+      "NICK #{nick}",
+      "USER #{nick} () * #{nick}"
+    ])
 
     ping = server_events.select { |msg| msg.command == "PING" }
     pong = ping.map { |msg| "PONG " + msg.params.join(" ") }
