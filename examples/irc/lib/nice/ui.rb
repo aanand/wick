@@ -3,9 +3,9 @@ require 'colored'
 
 module Nice
   class UI
-    class ChannelState < Struct.new(:joined_channels, :current_index)
+    class ChannelState < Struct.new(:joined_channels, :channel_index)
       def current_channel_name
-        current_index && joined_channels[current_index]
+        channel_index && joined_channels[channel_index]
       end
 
       def update_channel_index(inc)
