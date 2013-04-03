@@ -6,5 +6,8 @@ Gem::Specification.new do |s|
   s.email    = 'aanand.prasad@gmail.com'
   s.homepage = 'https://github.com/aanand/wick'
   s.files    = `git ls-files -z examples lib`.split("\0")
+  
+  s.add_development_dependency('colored')
+  s.add_development_dependency('slop')
 end
 
